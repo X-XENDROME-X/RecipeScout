@@ -24,7 +24,9 @@ final class EnvironmentConfig {
         var result: [String: String] = [:]
         input.components(separatedBy: .newlines).forEach { line in
             let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmed.isEmpty, !trimmed.hasPrefix("#") else { return }
+            guard !trimmed.isEmpty, !trimmed.hasPrefix("#") else { 
+                return 
+            }
             let parts = trimmed.split(separator: "=", maxSplits: 1).map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
             if parts.count == 2 {
                 let key = parts[0]
