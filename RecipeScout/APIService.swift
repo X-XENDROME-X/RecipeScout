@@ -234,7 +234,7 @@ class APIService {
     private func ParseInstructions(_ rawText: String) -> [String] {
         guard !rawText.isEmpty else { return [] }
         
-        var normalized = rawText
+        let normalized = rawText
             .replacingOccurrences(of: "\r\n", with: "\n")
             .replacingOccurrences(of: "\r", with: "\n")
         
