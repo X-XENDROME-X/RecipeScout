@@ -303,8 +303,10 @@ struct RecipeCard : View {
                         .padding()
                         .background(Color.orange)
                         .cornerRadius(10)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(PlainButtonStyle())
+                .simultaneousGesture(TapGesture())
             }
             .padding()
             .background(Color.white)
