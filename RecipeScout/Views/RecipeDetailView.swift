@@ -30,23 +30,7 @@ struct RecipeDetailView : View {
     @State private var alertMessage=""
 
     private var STEPS : [String] {
-        
-        recipe.instructions.compactMap { R in
-
-            let TRIM = R.trimmingCharacters(in : .whitespacesAndNewlines)
-            
-            guard !TRIM.isEmpty else { return nil }
-
-            if TRIM.lowercased().hasPrefix("step") , let sepRange = TRIM.range(of : ":") ?? TRIM.range(of : "-") {
-                
-                let AFTER = TRIM[TRIM.index(after : sepRange.lowerBound)...]
-                
-                let CLEANED = AFTER.trimmingCharacters(in : .whitespacesAndNewlines)
-                
-                return CLEANED.isEmpty ? TRIM : CLEANED
-            }
-            return TRIM
-        }
+        recipe.instructions.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     }
 
     private func SavedStateUpdated() {
@@ -492,4 +476,3 @@ private struct HeaderImageView : View {
             .overlay(content())
     }
 }
-

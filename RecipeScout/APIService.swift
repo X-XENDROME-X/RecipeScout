@@ -201,11 +201,7 @@ class APIService {
 
         let ING = IngredientsCollect(from : MealsFromAPI)
 
-        let INS = MealsFromAPI.strInstructions?
-            .components(separatedBy: "\r\n")
-            .filter { !$0.isEmpty }
-            .enumerated()
-            .map { "Step \($0.offset + 1): \($0.element)" } ?? []
+        let INS = ParseInstructions(MealsFromAPI.strInstructions ?? "")
 
         return Recipe(
             
@@ -233,6 +229,102 @@ class APIService {
             
             youtubeURL : MealsFromAPI.strYoutube
         )
+    }
+    
+    private func ParseInstructions(_ rawText: String) -> [String] {
+        guard !rawText.isEmpty else { return [] }
+        
+        var normalized = rawText
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+        
+        let stepPatterns = [
+            "(?:^|\\n)\\s*STEP\\s+\\d+\\s*[-:]?\\s*",
+            "(?:^|\\n)\\s*Step\\s+\\d+\\s*[-:]?\\s*",
+            "(?:^|\\n)\\s*\\d+\\.\\s+",
+            "(?:^|\\n)\\s*\\d+\\)\\s+",
+            "(?:^|\\n)\\s*\\d+\\s*[-–—]\\s*"
+        ]
+        
+        var hasNumberedSteps = false
+        for pattern in stepPatterns {
+            if let _ = try? NSRegularExpression(pattern: pattern, options: []).firstMatch(in: normalized, range: NSRange(normalized.startIndex..., in: normalized)) {
+                hasNumberedSteps = true
+                break
+            }
+        }
+        
+        var steps: [String] = []
+        
+        if hasNumberedSteps {
+            let combinedPattern = stepPatterns.joined(separator: "|")
+            if let regex = try? NSRegularExpression(pattern: combinedPattern, options: []) {
+                let matches = regex.matches(in: normalized, range: NSRange(normalized.startIndex..., in: normalized))
+                
+                if matches.isEmpty {
+                    steps = normalized.components(separatedBy: "\n\n")
+                } else {
+                    var lastIndex = normalized.startIndex
+                    
+                    for (index, match) in matches.enumerated() {
+                        if index > 0 {
+                            let previousMatch = matches[index - 1]
+                            let previousEnd = normalized.index(normalized.startIndex, offsetBy: previousMatch.range.upperBound)
+                            let currentStart = normalized.index(normalized.startIndex, offsetBy: match.range.lowerBound)
+                            
+                            let stepText = String(normalized[previousEnd..<currentStart])
+                                .trimmingCharacters(in: .whitespacesAndNewlines)
+                            
+                            if !stepText.isEmpty {
+                                steps.append(stepText)
+                            }
+                        }
+                        
+                        if index == matches.count - 1 {
+                            let matchEnd = normalized.index(normalized.startIndex, offsetBy: match.range.upperBound)
+                            let finalText = String(normalized[matchEnd...])
+                                .trimmingCharacters(in: .whitespacesAndNewlines)
+                            
+                            if !finalText.isEmpty {
+                                steps.append(finalText)
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            let lines = normalized.components(separatedBy: "\n")
+            var currentStep = ""
+            
+            for line in lines {
+                let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+                
+                if trimmed.isEmpty {
+                    if !currentStep.isEmpty {
+                        steps.append(currentStep)
+                        currentStep = ""
+                    }
+                } else {
+                    if currentStep.isEmpty {
+                        currentStep = trimmed
+                    } else {
+                        let lastChar = currentStep.last
+                        if lastChar == "." || lastChar == "!" || lastChar == "?" || lastChar == ":" {
+                            steps.append(currentStep)
+                            currentStep = trimmed
+                        } else {
+                            currentStep += " " + trimmed
+                        }
+                    }
+                }
+            }
+            
+            if !currentStep.isEmpty {
+                steps.append(currentStep)
+            }
+        }
+        
+        return steps.filter { !$0.isEmpty }
     }
 
     private func IngredientsCollect(from MealsFromAPI : MealAPIModel) -> [Ingredient] {
