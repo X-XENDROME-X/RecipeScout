@@ -264,8 +264,6 @@ class APIService {
                 if matches.isEmpty {
                     steps = normalized.components(separatedBy: "\n\n")
                 } else {
-                    var lastIndex = normalized.startIndex
-                    
                     for (index, match) in matches.enumerated() {
                         if index > 0 {
                             let previousMatch = matches[index - 1]

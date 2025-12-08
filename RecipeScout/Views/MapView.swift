@@ -390,7 +390,8 @@ final class MapViewModel : NSObject , ObservableObject , CLLocationManagerDelega
                 
                 self.stores = RESP.mapItems.map { X in
                     
-                    let DIS = X.placemark.location?.distance(from : userLocation) ?? 0
+                    let location = CLLocation(latitude: X.placemark.coordinate.latitude, longitude: X.placemark.coordinate.longitude)
+                    let DIS = location.distance(from : userLocation)
                     
                     return StoreLocation(
                         name : X.name ?? "Store" ,
