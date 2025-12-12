@@ -46,6 +46,8 @@ struct HomeView : View {
                 Button(action: { onSelectTab(2) } ) { MenuButton(ICON : "calendar" , LABEL : "Meal Planner") }
 
                 Button(action : { onSelectTab(3) } ) { MenuButton(ICON : "cart.fill" , LABEL : "Shopping List") }
+                
+                Button(action : { onSelectTab(5) } ) { MenuButton(ICON : "brain.head.profile" , LABEL : "AI Assistant") }
 
                 Spacer()
             }

@@ -74,10 +74,10 @@ cp .env.template RecipeScout/Configuration/.env
 Edit `RecipeScout/Configuration/.env` and add your API base URL:
 
 ```env
-API_BASE_URL=https://www.themealdb.com/api/json/v1/1
+API_BASE_URL=<YOUR_MEALDB_BASE_URL>
 ```
 
-> **Note**: TheMealDB provides a free public API. For testing, use the URL above. For production or higher rate limits, consider getting an API key from [TheMealDB](https://www.themealdb.com/api.php).
+> **Note**: Request your own MealDB endpoint (or proxy) and keep it private by storing it only in `.env`. Follow the [TheMealDB API docs](https://www.themealdb.com/api.php) to obtain the correct base URL for your account or tier.
 
 ### 3️⃣ Open in Xcode
 

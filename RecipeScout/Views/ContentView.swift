@@ -37,6 +37,10 @@ struct ContentView: View {
             MapView()
                 .tabItem { Label("Map" , systemImage : "map.fill") }
                 .tag(4)
+            
+            AIAssistantView()
+                .tabItem { Label("AI Assistant" , systemImage : "brain.head.profile") }
+                .tag(5)
         }
         .tint(.orange)
     }
