@@ -12,6 +12,8 @@ import SwiftUI
 
 struct SearchView : View {
     
+    @Binding var showTabView: Bool
+    
     @StateObject private var viewModel = RecipeViewModel()
     
     @State private var textSearch = ""
@@ -21,6 +23,10 @@ struct SearchView : View {
     @State private var isSearching = false
 
     let categories : [String] = ["All" , "Breakfast" , "Dessert" , "Seafood" , "Vegetarian"]
+    
+    init(showTabView: Binding<Bool>) {
+        self._showTabView = showTabView
+    }
 
     private var RecipesFiltered : [Recipe] {
         
@@ -42,6 +48,16 @@ struct SearchView : View {
                 VStack(spacing : 15) {
                     
                     HStack(spacing : 8) {
+                        
+                        Button(action: { 
+                            withAnimation(.easeInOut(duration: 0.35)) {
+                                showTabView = false
+                            }
+                        }) {
+                            Image(systemName: "house.fill")
+                                .font(.title3)
+                                .foregroundStyle(.orange)
+                        }
                         
                         Image("logo")
                             .resizable()

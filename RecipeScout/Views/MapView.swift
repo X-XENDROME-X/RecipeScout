@@ -70,15 +70,29 @@ private struct MapControls : View {
 
 struct MapView : View {
     
-    @Environment(\.dismiss) var dismiss
+    @Binding var showTabView: Bool
     
     @StateObject private var viewModel = MapViewModel()
+    
+    init(showTabView: Binding<Bool>) {
+        self._showTabView = showTabView
+    }
 
     var body : some View {
         
         VStack(spacing : 15) {
             
             HStack(spacing : 8) {
+                
+                Button(action: { 
+                    withAnimation(.easeInOut(duration: 0.35)) {
+                        showTabView = false
+                    }
+                }) {
+                    Image(systemName: "house.fill")
+                        .font(.title3)
+                        .foregroundStyle(.orange)
+                }
                 
                 Image("logo")
                     .resizable()
@@ -213,10 +227,8 @@ struct MapView : View {
             Spacer()
         }
         .navigationBarBackButtonHidden(true)
-        
+        .toolbar(.hidden, for: .navigationBar)
         .onAppear { viewModel.RETRYER() }
-        
-        .navigationBarBackButtonHidden(true)
     }
 }
 

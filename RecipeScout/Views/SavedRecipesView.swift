@@ -17,7 +17,7 @@ struct SavedRecipesView : View {
     @Environment(\.dismiss) private var dismiss
     
     @Environment(\.modelContext) private var modelContext
-
+    
     @Query(sort : \SavedRecipe.dateSaved , order : .reverse)
     
     private var savedRecipes : [SavedRecipe]
@@ -25,11 +25,13 @@ struct SavedRecipesView : View {
     @State private var MealPlannerDisplay=false
     
     @State private var PlannedRecipe : SavedRecipe?
-
+    
+    @State private var showTabView = false
+    
     struct SavedRecipeRow : View {
         
         let saved : SavedRecipe
-
+        
         var body : some View {
             
             HStack(spacing : 12) {
@@ -71,14 +73,14 @@ struct SavedRecipesView : View {
                         .background(Color.gray.opacity(0.2))
                         .cornerRadius(10)
                 }
-
+                
                 VStack(alignment : .leading , spacing : 4) {
                     
                     Text(saved.name)
                         .font(.headline)
                         .foregroundColor(.orange)
                         .lineLimit(2)
-
+                    
                     HStack(spacing : 6) {
                         Text(saved.category)
                         Text("•")
@@ -86,7 +88,7 @@ struct SavedRecipesView : View {
                     }
                     .font(.caption)
                     .foregroundColor(.secondary)
-
+                    
                     Text("Saved on \(saved.dateSaved.formatted(date : .abbreviated , time : .shortened) )")
                         .font(.caption2)
                         .foregroundColor(.gray)
@@ -95,17 +97,17 @@ struct SavedRecipesView : View {
             .padding(.vertical , 6)
         }
     }
-
+    
     struct SavedRecipeDetailLoader : View {
         
         let saved : SavedRecipe
-
+        
         @State private var loadedRecipe : Recipe?
         
         @State private var isLoading = true
         
         @State private var errorMessage : String?
-
+        
         var body : some View {
             
             Group {
@@ -141,7 +143,7 @@ struct SavedRecipesView : View {
             }
             .task { await RecipeLoad() }
         }
-
+        
         private func RecipeLoad() async {
             
             do {
@@ -162,13 +164,13 @@ struct SavedRecipesView : View {
             isLoading = false
         }
     }
-
+    
     var body : some View {
         
         VStack {
             
             if savedRecipes.isEmpty {
-
+                
                 Spacer()
                 
                 Image(systemName: "heart.slash")
@@ -208,7 +210,7 @@ struct SavedRecipesView : View {
                             }
                             .tint(.orange)
                         }
-
+                        
                         .swipeActions(edge : .trailing) {
                             Button(role : .destructive) { SingleDEL(saved : SAVE)
                             } label : {
@@ -259,11 +261,11 @@ struct SavedRecipesView : View {
         
         .sheet(isPresented : $MealPlannerDisplay) {
             if let PlannedRecipe {
-                MealPlannerView(PreselectedRECID : PlannedRecipe.id)
+                MealPlannerView(showTabView: $showTabView, PreselectedRECID : PlannedRecipe.id)
             }
         }
     }
-
+    
     private func DELSAVED(at OFFS : IndexSet) {
         
         for i in OFFS {
@@ -273,9 +275,8 @@ struct SavedRecipesView : View {
             
         }
     }
-
+    
     private func SingleDEL(saved : SavedRecipe) {
         modelContext.delete(saved)
     }
 }
-

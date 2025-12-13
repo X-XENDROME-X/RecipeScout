@@ -13,6 +13,7 @@ import SwiftUI
 struct HomeView : View {
     
     @State private var navigationPath = NavigationPath()
+    @State private var showContent = false
     var onSelectTab : (Int) -> Void = { _ in }
 
     var body : some View {
@@ -28,26 +29,53 @@ struct HomeView : View {
                     .scaledToFit()
                     .frame(width : 100 , height : 100)
                     .foregroundColor(.orange)
+                    .scaleEffect(showContent ? 1.0 : 0.5)
+                    .opacity(showContent ? 1.0 : 0.0)
 
                 Text("Recipe Scout")
                     .font(.system(size : 48 , weight : .bold))
                     .foregroundColor(.orange)
+                    .scaleEffect(showContent ? 1.0 : 0.8)
+                    .opacity(showContent ? 1.0 : 0.0)
 
                 Text("Meals Made Easy")
                     .font(.title3)
                     .foregroundColor(.gray)
+                    .opacity(showContent ? 1.0 : 0.0)
 
                 Spacer().frame(height : 22)
 
-                Button(action : { onSelectTab(1) } ) { MenuButton(ICON : "magnifyingglass" , LABEL : "Search Recipes") }
+                VStack(spacing: 15) {
+                    Button(action : { onSelectTab(0) } ) { MenuButton(ICON : "magnifyingglass" , LABEL : "Search Recipes") }
+                        .buttonStyle(.plain)
+                        .opacity(showContent ? 1.0 : 0.0)
+                        .offset(x: showContent ? 0 : -50)
+                        .allowsHitTesting(showContent)
 
-                Button(action : { navigationPath.append("Saved") } ) { MenuButton(ICON : "heart.fill" , LABEL : "My Saved Recipes") }
+                    Button(action : { navigationPath.append("Saved") } ) { MenuButton(ICON : "heart.fill" , LABEL : "My Saved Recipes") }
+                        .buttonStyle(.plain)
+                        .opacity(showContent ? 1.0 : 0.0)
+                        .offset(x: showContent ? 0 : -50)
+                        .allowsHitTesting(showContent)
 
-                Button(action: { onSelectTab(2) } ) { MenuButton(ICON : "calendar" , LABEL : "Meal Planner") }
+                    Button(action: { onSelectTab(1) } ) { MenuButton(ICON : "calendar" , LABEL : "Meal Planner") }
+                        .buttonStyle(.plain)
+                        .opacity(showContent ? 1.0 : 0.0)
+                        .offset(x: showContent ? 0 : -50)
+                        .allowsHitTesting(showContent)
 
-                Button(action : { onSelectTab(3) } ) { MenuButton(ICON : "cart.fill" , LABEL : "Shopping List") }
-                
-                Button(action : { onSelectTab(5) } ) { MenuButton(ICON : "brain.head.profile" , LABEL : "AI Assistant") }
+                    Button(action : { onSelectTab(3) } ) { MenuButton(ICON : "cart.fill" , LABEL : "Shopping List") }
+                        .buttonStyle(.plain)
+                        .opacity(showContent ? 1.0 : 0.0)
+                        .offset(x: showContent ? 0 : -50)
+                        .allowsHitTesting(showContent)
+                    
+                    Button(action : { onSelectTab(2) } ) { MenuButton(ICON : "brain.head.profile" , LABEL : "AI Assistant") }
+                        .buttonStyle(.plain)
+                        .opacity(showContent ? 1.0 : 0.0)
+                        .offset(x: showContent ? 0 : -50)
+                        .allowsHitTesting(showContent)
+                }
 
                 Spacer()
             }
@@ -64,8 +92,15 @@ struct HomeView : View {
                 }
             }
         }
-
         .toolbar(.hidden , for : .tabBar)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.4)) {
+                showContent = true
+            }
+        }
+        .onDisappear {
+            showContent = false
+        }
     }
 }
 
@@ -74,6 +109,8 @@ struct MenuButton : View {
     let ICON : String
     
     let LABEL : String
+    
+    @State private var isPressed = false
 
     var body : some View {
         
@@ -93,6 +130,11 @@ struct MenuButton : View {
         .background(Color.orange)
         .foregroundColor(.white)
         .cornerRadius(15)
+        .scaleEffect(isPressed ? 0.95 : 1.0)
+        .animation(.easeInOut(duration: 0.15), value: isPressed)
+        .onLongPressGesture(minimumDuration: .infinity, maximumDistance: .infinity, pressing: { pressing in
+            isPressed = pressing
+        }, perform: {})
     }
 }
 

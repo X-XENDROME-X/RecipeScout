@@ -13,148 +13,108 @@ import SwiftData
 
 struct AIAssistantView: View {
     
+    @Binding var showTabView: Bool
+    
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: AIAssistantViewModel?
     @State private var messageText = ""
     @State private var showingSettings = false
     @FocusState private var isInputFocused: Bool
     
+    init(showTabView: Binding<Bool>) {
+        self._showTabView = showTabView
+    }
+    
     var body: some View {
-        NavigationStack {
-            ZStack {
-                // Background
-                Color(.systemGroupedBackground)
-                    .ignoresSafeArea()
-                
-                if let viewModel = viewModel {
-                    VStack(spacing: 0) {
-                        // Messages ScrollView
-                        ScrollViewReader { proxy in
-                            ScrollView {
-                                LazyVStack(spacing: 12) {
-                                    ForEach(viewModel.messages) { message in
-                                        MessageBubbleView(message: message)
-                                            .id(message.id)
-                                    }
-                                    
-                                    // Typing indicator
-                                    if viewModel.isLoading {
-                                        TypingIndicatorView()
-                                    }
+        ZStack {
+            // Background
+            Color(.systemGroupedBackground)
+                .ignoresSafeArea()
+            
+            if let viewModel = viewModel {
+                VStack(spacing: 0) {
+                    // Custom Header
+                    AIAssistantHeaderView(
+                        viewModel: viewModel,
+                        showingSettings: $showingSettings,
+                        showTabView: $showTabView
+                    )
+                    
+                    // Messages ScrollView
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            LazyVStack(spacing: 12) {
+                                ForEach(viewModel.messages) { message in
+                                    MessageBubbleView(message: message)
+                                        .id(message.id)
                                 }
-                                .padding()
-                            }
-                            .onChange(of: viewModel.messages.count) { _, _ in
-                                if let lastMessage = viewModel.messages.last {
-                                    withAnimation {
-                                        proxy.scrollTo(lastMessage.id, anchor: .bottom)
-                                    }
-                                }
-                            }
-                            .onChange(of: viewModel.isLoading) { _, _ in
+                                
+                                // Typing indicator
                                 if viewModel.isLoading {
-                                    withAnimation {
-                                        proxy.scrollTo("typing", anchor: .bottom)
-                                    }
+                                    TypingIndicatorView()
+                                }
+                            }
+                            .padding()
+                        }
+                        .onChange(of: viewModel.messages.count) { _, _ in
+                            if let lastMessage = viewModel.messages.last {
+                                withAnimation {
+                                    proxy.scrollTo(lastMessage.id, anchor: .bottom)
                                 }
                             }
                         }
-                        
-                        Divider()
-                        
-                        // Suggested queries (shown when chat is empty)
-                        if viewModel.messages.count == 1 {
-                            QuickActionButtons(
-                                suggestions: viewModel.getSuggestedQueries(),
-                                onTap: { query in
-                                    messageText = query
-                                    Task {
-                                        await viewModel.sendMessage(query)
-                                        messageText = ""
-                                    }
+                        .onChange(of: viewModel.isLoading) { _, _ in
+                            if viewModel.isLoading {
+                                withAnimation {
+                                    proxy.scrollTo("typing", anchor: .bottom)
                                 }
-                            )
-                            .padding(.horizontal)
-                            .padding(.top, 8)
+                            }
                         }
-                        
-                        // Input bar
-                        AIInputBar(
-                            text: $messageText,
-                            isLoading: viewModel.isLoading,
-                            onSend: {
-                                let text = messageText
-                                messageText = ""
-                                isInputFocused = false
+                    }
+                    
+                    Divider()
+                    
+                    // Suggested queries (shown when chat is empty)
+                    if viewModel.messages.count == 1 {
+                        QuickActionButtons(
+                            suggestions: viewModel.getSuggestedQueries(),
+                            onTap: { query in
+                                messageText = query
                                 Task {
-                                    await viewModel.sendMessage(text)
+                                    await viewModel.sendMessage(query)
+                                    messageText = ""
                                 }
                             }
                         )
-                        .focused($isInputFocused)
-                        .padding()
+                        .padding(.horizontal)
+                        .padding(.top, 8)
                     }
-                } else {
-                    ProgressView("Initializing AI Assistant...")
-                        .tint(.orange)
-                }
-            }
-            .navigationTitle("AI Assistant")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        if let vm = viewModel {
-                            Section("Data Context") {
-                                Toggle(isOn: Binding(
-                                    get: { vm.includeSavedRecipes },
-                                    set: { vm.includeSavedRecipes = $0; vm.refreshContext() }
-                                )) {
-                                    Label("Include Saved Recipes", systemImage: "heart.fill")
-                                }
-                                
-                                Toggle(isOn: Binding(
-                                    get: { vm.includeShoppingList },
-                                    set: { vm.includeShoppingList = $0; vm.refreshContext() }
-                                )) {
-                                    Label("Include Shopping List", systemImage: "cart.fill")
-                                }
-                                
-                                Toggle(isOn: Binding(
-                                    get: { vm.includeMealPlan },
-                                    set: { vm.includeMealPlan = $0; vm.refreshContext() }
-                                )) {
-                                    Label("Include Meal Plan", systemImage: "calendar")
-                                }
-                            }
-                            
-                            Section {
-                                Button(role: .destructive, action: {
-                                    vm.clearConversation()
-                                }) {
-                                    Label("Clear Conversation", systemImage: "trash")
-                                }
-                            }
-                            
-                            Section {
-                                Button(action: { showingSettings = true }) {
-                                    Label("About AI Assistant", systemImage: "info.circle")
-                                }
+                        
+                    // Input bar
+                    AIInputBar(
+                        text: $messageText,
+                        isLoading: viewModel.isLoading,
+                        onSend: {
+                            let text = messageText
+                            messageText = ""
+                            isInputFocused = false
+                            Task {
+                                await viewModel.sendMessage(text)
                             }
                         }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
-                            .foregroundStyle(.orange)
-                    }
+                    )
+                    .focused($isInputFocused)
+                    .padding()
                 }
-                
-                ToolbarItem(placement: .topBarLeading) {
-                    if let vm = viewModel {
-                        ContextBadgeView(statistics: vm.statistics)
-                    }
-                }
+            } else {
+                ProgressView("Initializing AI Assistant...")
+                    .tint(.orange)
             }
-            .sheet(isPresented: $showingSettings) {
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
+        .sheet(isPresented: $showingSettings) {
+            NavigationStack {
                 AIAssistantInfoView()
             }
         }
@@ -279,5 +239,97 @@ struct FeatureRow: View {
             }
         }
         .padding(.vertical, 4)
+    }
+}
+
+// MARK: - Custom Header View
+
+struct AIAssistantHeaderView: View {
+    var viewModel: AIAssistantViewModel
+    @Binding var showingSettings: Bool
+    @Binding var showTabView: Bool
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                // Home Button
+                Button(action: { 
+                    withAnimation(.easeInOut(duration: 0.35)) {
+                        showTabView = false
+                    }
+                }) {
+                    Image(systemName: "house.fill")
+                        .font(.title3)
+                        .foregroundStyle(.orange)
+                }
+                
+                // Context Badge
+                ContextBadgeView(statistics: viewModel.statistics)
+                
+                Spacer()
+                
+                // Title
+                HStack(spacing: 8) {
+                    Image(systemName: "brain.head.profile")
+                        .font(.headline)
+                        .foregroundStyle(.orange)
+                    
+                    Text("AI Assistant")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                }
+                
+                Spacer()
+                
+                // Menu Button
+                Menu {
+                    Section("Data Context") {
+                        Toggle(isOn: Binding(
+                            get: { viewModel.includeSavedRecipes },
+                            set: { viewModel.includeSavedRecipes = $0; viewModel.refreshContext() }
+                        )) {
+                            Label("Include Saved Recipes", systemImage: "heart.fill")
+                        }
+                        
+                        Toggle(isOn: Binding(
+                            get: { viewModel.includeShoppingList },
+                            set: { viewModel.includeShoppingList = $0; viewModel.refreshContext() }
+                        )) {
+                            Label("Include Shopping List", systemImage: "cart.fill")
+                        }
+                        
+                        Toggle(isOn: Binding(
+                            get: { viewModel.includeMealPlan },
+                            set: { viewModel.includeMealPlan = $0; viewModel.refreshContext() }
+                        )) {
+                            Label("Include Meal Plan", systemImage: "calendar")
+                        }
+                    }
+                    
+                    Section {
+                        Button(role: .destructive, action: {
+                            viewModel.clearConversation()
+                        }) {
+                            Label("Clear Conversation", systemImage: "trash")
+                        }
+                    }
+                    
+                    Section {
+                        Button(action: { showingSettings = true }) {
+                            Label("About AI Assistant", systemImage: "info.circle")
+                        }
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .font(.title3)
+                        .foregroundStyle(.orange)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 12)
+            .background(Color(.systemBackground))
+            
+            Divider()
+        }
     }
 }

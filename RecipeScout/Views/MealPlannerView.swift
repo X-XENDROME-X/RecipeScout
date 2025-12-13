@@ -14,6 +14,8 @@ import SwiftData
 
 struct MealPlannerView : View {
     
+    @Binding var showTabView: Bool
+    
     @Environment(\.modelContext) private var modelContext
 
     let PreselectedRECID : String?
@@ -35,6 +37,11 @@ struct MealPlannerView : View {
     @State private var showAlert = false
     
     @State private var alertMessage : String?
+    
+    init(showTabView: Binding<Bool>, PreselectedRECID: String?) {
+        self._showTabView = showTabView
+        self.PreselectedRECID = PreselectedRECID
+    }
     
 
     private var MEALSforSELECTEDDate : [MealPlanEntry] {
@@ -176,6 +183,16 @@ struct MealPlannerView : View {
                 VStack(spacing : 8) {
                     
                     HStack(spacing : 8) {
+                        
+                        Button(action: { 
+                            withAnimation(.easeInOut(duration: 0.35)) {
+                                showTabView = false
+                            }
+                        }) {
+                            Image(systemName: "house.fill")
+                                .font(.title3)
+                                .foregroundStyle(.orange)
+                        }
                         
                         Image("logo")
                             .resizable()

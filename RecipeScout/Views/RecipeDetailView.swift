@@ -23,6 +23,8 @@ struct RecipeDetailView : View {
     
     @State private var MealPlannerDisplay=false
     
+    @State private var showTabView = false
+    
     @Environment(\.dismiss) private var dismiss
     
     @Environment(\.modelContext) private var modelContext
@@ -405,7 +407,7 @@ struct RecipeDetailView : View {
 
         .onAppear { SavedStateUpdated() }
 
-        .sheet(isPresented : $MealPlannerDisplay) { MealPlannerView(PreselectedRECID : recipe.id) }
+        .sheet(isPresented : $MealPlannerDisplay) { MealPlannerView(showTabView: $showTabView, PreselectedRECID : recipe.id) }
     }
 }
 

@@ -16,6 +16,8 @@ import SwiftData
 
 struct ShoppingListView : View {
 
+    @Binding var showTabView: Bool
+    
     @Environment(\.dismiss) var dismiss
 
     @Environment(\.modelContext) private var modelContext
@@ -24,6 +26,10 @@ struct ShoppingListView : View {
 
     @Query(sort : \ShoppingItem.dateAdded , order : .reverse)
     private var items : [ShoppingItem]
+    
+    init(showTabView: Binding<Bool>) {
+        self._showTabView = showTabView
+    }
 
     var body : some View {
         
@@ -36,6 +42,16 @@ struct ShoppingListView : View {
                     ZStack {
 
                         HStack(spacing : 8) {
+                            
+                            Button(action: { 
+                                withAnimation(.easeInOut(duration: 0.35)) {
+                                    showTabView = false
+                                }
+                            }) {
+                                Image(systemName: "house.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(.orange)
+                            }
                             
                             Spacer()
 
