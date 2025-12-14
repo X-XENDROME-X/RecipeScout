@@ -45,32 +45,40 @@ struct SearchView : View {
             
             VStack(spacing : 0) {
 
-                VStack(spacing : 15) {
+                // Navigation Bar
+                VStack(spacing : 0) {
                     
-                    HStack(spacing : 8) {
-                        
-                        Button(action: { 
-                            withAnimation(.easeInOut(duration: 0.35)) {
-                                showTabView = false
-                            }
-                        }) {
-                            Image(systemName: "house.fill")
-                                .font(.title3)
-                                .foregroundStyle(.orange)
+                    ZStack {
+                        // Centered logo and title
+                        HStack(spacing : 8) {
+                            Image("logo")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width : 40 , height : 40)
+                            
+                            Text("Search Recipes")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.orange)
                         }
                         
-                        Image("logo")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width : 40 , height : 40)
-                        
-                        Text("Search Recipes")
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .foregroundColor(.orange)
-                        
+                        // Home button aligned to leading edge
+                        HStack {
+                            Button(action: { 
+                                withAnimation(.easeInOut(duration: 0.35)) {
+                                    showTabView = false
+                                }
+                            }) {
+                                Image(systemName: "house.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(.orange)
+                            }
+                            
+                            Spacer()
+                        }
                     }
-                    .padding(.top, 10)
+                    .padding(.horizontal)
+                    .padding(.vertical, 12)
 
                     HStack {
                         
@@ -102,6 +110,7 @@ struct SearchView : View {
                     .background(Color(.systemGray6))
                     .cornerRadius(10)
                     .padding(.horizontal)
+                    .padding(.bottom, 8)
 
                     ScrollView(.horizontal , showsIndicators : false) {
                         
@@ -135,10 +144,11 @@ struct SearchView : View {
                         }
                         .padding(.horizontal)
                     }
+                    .padding(.bottom, 8)
                 }
-                .frame(maxWidth : .infinity)
-                .padding(.vertical)
-                .background(Color.white)
+                .background(Color(UIColor.systemBackground))
+                
+                Divider()
 
                 ZStack {
 

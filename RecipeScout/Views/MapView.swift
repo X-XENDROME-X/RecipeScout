@@ -80,32 +80,48 @@ struct MapView : View {
 
     var body : some View {
         
-        VStack(spacing : 15) {
+        VStack(spacing : 0) {
             
-            HStack(spacing : 8) {
-                
-                Button(action: { 
-                    withAnimation(.easeInOut(duration: 0.35)) {
-                        showTabView = false
+            // Navigation Bar
+            VStack(spacing: 0) {
+                ZStack {
+                    // Centered logo and title
+                    HStack(spacing : 8) {
+                        Image("logo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width : 40 , height : 40)
+                        
+                        Text("Nearby Stores")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.orange)
                     }
-                }) {
-                    Image(systemName: "house.fill")
-                        .font(.title3)
-                        .foregroundStyle(.orange)
+                    
+                    // Home button aligned to leading edge
+                    HStack {
+                        Button(action: { 
+                            withAnimation(.easeInOut(duration: 0.35)) {
+                                showTabView = false
+                            }
+                        }) {
+                            Image(systemName: "house.fill")
+                                .font(.title3)
+                                .foregroundStyle(.orange)
+                        }
+                        
+                        Spacer()
+                    }
                 }
+                .padding(.horizontal)
+                .padding(.vertical, 12)
+                .background(Color(UIColor.systemBackground))
                 
-                Image("logo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width : 40 , height : 40)
-                
-                Text("Nearby Stores")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(.orange)
-                
+                Divider()
             }
-            .padding(.top , 10)
+            
+            // Content Area
+            VStack(spacing: 15) {
 
             switch viewModel.StatusOFAUTH {
                 
@@ -223,6 +239,8 @@ struct MapView : View {
                     .listStyle(.plain)
                 }
             }
+            
+            }  // End of Content VStack
 
             Spacer()
         }

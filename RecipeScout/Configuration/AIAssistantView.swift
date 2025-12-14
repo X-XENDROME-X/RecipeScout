@@ -251,24 +251,23 @@ struct AIAssistantHeaderView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
-                // Home Button
-                Button(action: { 
-                    withAnimation(.easeInOut(duration: 0.35)) {
-                        showTabView = false
+            ZStack {
+                // Home button on the left
+                HStack {
+                    Button(action: { 
+                        withAnimation(.easeInOut(duration: 0.35)) {
+                            showTabView = false
+                        }
+                    }) {
+                        Image(systemName: "house.fill")
+                            .font(.title3)
+                            .foregroundStyle(.orange)
                     }
-                }) {
-                    Image(systemName: "house.fill")
-                        .font(.title3)
-                        .foregroundStyle(.orange)
+                    
+                    Spacer()
                 }
                 
-                // Context Badge
-                ContextBadgeView(statistics: viewModel.statistics)
-                
-                Spacer()
-                
-                // Title
+                // Centered title with icon
                 HStack(spacing: 8) {
                     Image(systemName: "brain.head.profile")
                         .font(.headline)
@@ -279,35 +278,36 @@ struct AIAssistantHeaderView: View {
                         .fontWeight(.bold)
                 }
                 
-                Spacer()
-                
-                // Menu Button
-                Menu {
-                    Section("Data Context") {
-                        Toggle(isOn: Binding(
-                            get: { viewModel.includeSavedRecipes },
-                            set: { viewModel.includeSavedRecipes = $0; viewModel.refreshContext() }
-                        )) {
-                            Label("Include Saved Recipes", systemImage: "heart.fill")
-                        }
-                        
-                        Toggle(isOn: Binding(
-                            get: { viewModel.includeShoppingList },
-                            set: { viewModel.includeShoppingList = $0; viewModel.refreshContext() }
-                        )) {
-                            Label("Include Shopping List", systemImage: "cart.fill")
-                        }
-                        
-                        Toggle(isOn: Binding(
-                            get: { viewModel.includeMealPlan },
-                            set: { viewModel.includeMealPlan = $0; viewModel.refreshContext() }
-                        )) {
-                            Label("Include Meal Plan", systemImage: "calendar")
-                        }
-                    }
+                // Menu button on the right
+                HStack {
+                    Spacer()
                     
-                    Section {
-                        Button(role: .destructive, action: {
+                    Menu {
+                        Section("Data Context") {
+                            Toggle(isOn: Binding(
+                                get: { viewModel.includeSavedRecipes },
+                                set: { viewModel.includeSavedRecipes = $0; viewModel.refreshContext() }
+                            )) {
+                                Label("Include Saved Recipes", systemImage: "heart.fill")
+                            }
+                            
+                            Toggle(isOn: Binding(
+                                get: { viewModel.includeShoppingList },
+                                set: { viewModel.includeShoppingList = $0; viewModel.refreshContext() }
+                            )) {
+                                Label("Include Shopping List", systemImage: "cart.fill")
+                            }
+                            
+                            Toggle(isOn: Binding(
+                                get: { viewModel.includeMealPlan },
+                                set: { viewModel.includeMealPlan = $0; viewModel.refreshContext() }
+                            )) {
+                                Label("Include Meal Plan", systemImage: "calendar")
+                            }
+                        }
+                        
+                        Section {
+                            Button(role: .destructive, action: {
                             viewModel.clearConversation()
                         }) {
                             Label("Clear Conversation", systemImage: "trash")
@@ -324,9 +324,19 @@ struct AIAssistantHeaderView: View {
                         .font(.title3)
                         .foregroundStyle(.orange)
                 }
+                }
             }
             .padding(.horizontal)
             .padding(.vertical, 12)
+            .background(Color(.systemBackground))
+            
+            // Context Badge below the header
+            HStack {
+                ContextBadgeView(statistics: viewModel.statistics)
+                Spacer()
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 8)
             .background(Color(.systemBackground))
             
             Divider()

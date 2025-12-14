@@ -35,14 +35,14 @@ struct ShoppingListView : View {
         
         NavigationStack {
             
-            VStack(spacing : 16) {
+            VStack(spacing : 0) {
                 
-                VStack(spacing : 15) {
+                // Navigation Bar
+                VStack(spacing : 0) {
                     
                     ZStack {
-
-                        HStack(spacing : 8) {
-                            
+                        // Home button on the left
+                        HStack {
                             Button(action: { 
                                 withAnimation(.easeInOut(duration: 0.35)) {
                                     showTabView = false
@@ -54,7 +54,10 @@ struct ShoppingListView : View {
                             }
                             
                             Spacer()
-
+                        }
+                        
+                        // Centered logo and title
+                        HStack(spacing : 8) {
                             Image("logo")
                                 .resizable()
                                 .scaledToFit()
@@ -64,18 +67,14 @@ struct ShoppingListView : View {
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(.orange)
-
-                            Spacer()
                         }
-
+                        
+                        // Clear All button on the right
                         HStack {
-                            
                             Spacer()
 
                             if !items.isEmpty {
-                                
                                 Button(action : { ALERTFORCLEARALL = true }) {
-                                    
                                     Text("Clear All")
                                         .font(.subheadline.weight(.semibold))
                                         .foregroundColor(.white)
@@ -87,80 +86,85 @@ struct ShoppingListView : View {
                             }
                         }
                     }
-                    .padding(.top , 10)
                     .padding(.horizontal)
-
-                    if items.isEmpty {
+                    .padding(.vertical, 12)
+                    
+                }
+                .background(Color(UIColor.systemBackground))
+                
+                Divider()
+                
+                // Content Area
+                if items.isEmpty {
+                    
+                    Spacer()
+                    
+                    Image(systemName : "cart")
+                        .font(.system(size: 60))
+                        .foregroundColor(.orange)
+                    
+                    Text("No items in your Shopping List")
+                        .font(.title3.weight(.bold))
+                        .foregroundColor(.orange)
+                    
+                    Text("Use \"Add to List\" on a recipe or Generate from Meal Plan to add ingredients here.")
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal , 40)
+                    
+                    Spacer()
+                    
+                }
+                else {
+                    
+                    List {
                         
-                        Spacer()
-                        
-                        Image(systemName : "cart")
-                            .font(.system(size: 60))
-                            .foregroundColor(.orange)
-                        
-                        Text("No items in your Shopping List")
-                            .font(.title3.weight(.bold))
-                            .foregroundColor(.orange)
-                        
-                        Text("Use \"Add to List\" on a recipe or Generate from Meal Plan to add ingredients here.")
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal , 40)
-                        
-                        Spacer()
-                        
-                    }
-                    else {
-                        
-                        List {
+                        ForEach(items) { i in
                             
-                            ForEach(items) { i in
+                            HStack {
                                 
-                                HStack {
+                                Button {
                                     
-                                    Button {
-                                        
-                                        i.isChecked.toggle()
-                                        
-                                        do {
-                                            try modelContext.save()
-                                        }
-                                        
-                                        catch {
-                                            print("\(error)")
-                                        }
-                                    } label : {
-                                        
-                                        Image(systemName : i.isChecked ? "checkmark.circle.fill" : "circle")
-                                        
-                                            .foregroundColor(i.isChecked ? .green : .orange)
+                                    i.isChecked.toggle()
+                                    
+                                    do {
+                                        try modelContext.save()
                                     }
-                                    .buttonStyle(.plain)
+                                    
+                                    catch {
+                                        print("\(error)")
+                                    }
+                                } label : {
+                                    
+                                    Image(systemName : i.isChecked ? "checkmark.circle.fill" : "circle")
+                                    
+                                        .foregroundColor(i.isChecked ? .green : .orange)
+                                }
+                                .buttonStyle(.plain)
 
-                                    VStack(alignment : .leading , spacing : 2) {
-                                        
-                                        Text(i.name)
-                                            .font(.headline)
-                                            .strikethrough(i.isChecked , color : .gray)
-                                        
-                                        Text(i.quantity)
-                                            .font(.subheadline)
-                                            .foregroundColor(.secondary)
+                                VStack(alignment : .leading , spacing : 2) {
+                                    
+                                    Text(i.name)
+                                        .font(.headline)
+                                        .strikethrough(i.isChecked , color : .gray)
+                                    
+                                    Text(i.quantity)
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
 
-                                        if let RName=i.sourceRecipeName {
-                                            
-                                            Text(RName)
-                                                .font(.caption)
-                                                .foregroundColor(.gray)
-                                        }
+                                    if let RName=i.sourceRecipeName {
+                                        
+                                        Text(RName)
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
                                     }
                                 }
                             }
-                            .onDelete(perform : DeleteITEMS)
                         }
-                        .listStyle(.plain)
+                        .onDelete(perform : DeleteITEMS)
                     }
+                    .listStyle(.plain)
                 }
             }
         }
@@ -184,6 +188,7 @@ struct ShoppingListView : View {
             
         }
     }
+
 
     private func ClearALL() {
         

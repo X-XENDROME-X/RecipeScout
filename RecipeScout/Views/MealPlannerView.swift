@@ -178,31 +178,42 @@ struct MealPlannerView : View {
         
         NavigationStack {
             
-            VStack(spacing : 16) {
+            VStack(spacing : 0) {
 
-                VStack(spacing : 8) {
+                // Navigation Bar
+                VStack(spacing : 0) {
                     
-                    HStack(spacing : 8) {
-                        
-                        Button(action: { 
-                            withAnimation(.easeInOut(duration: 0.35)) {
-                                showTabView = false
-                            }
-                        }) {
-                            Image(systemName: "house.fill")
-                                .font(.title3)
-                                .foregroundStyle(.orange)
+                    ZStack {
+                        // Centered logo and title
+                        HStack(spacing : 8) {
+                            Image("logo")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width : 40 , height : 40)
+                            
+                            Text("Meal Planner")
+                                .font(.title2.weight(.bold))
+                                .foregroundColor(.orange)
                         }
                         
-                        Image("logo")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width : 40 , height : 40)
-                        
-                        Text("Meal Planner")
-                            .font(.title2.weight(.bold))
-                            .foregroundColor(.orange)
+                        // Home button aligned to leading edge
+                        HStack {
+                            Button(action: { 
+                                withAnimation(.easeInOut(duration: 0.35)) {
+                                    showTabView = false
+                                }
+                            }) {
+                                Image(systemName: "house.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(.orange)
+                            }
+                            
+                            Spacer()
+                        }
                     }
+                    .padding(.horizontal)
+                    .padding(.vertical, 12)
+
 
                     DatePicker(
                         "Select the Day",
@@ -210,9 +221,13 @@ struct MealPlannerView : View {
                         displayedComponents : .date
                     )
                     .datePickerStyle(.compact)
+                    .padding(.horizontal)
+                    .padding(.bottom, 8)
                     
                 }
-                .padding(.horizontal)
+                .background(Color(UIColor.systemBackground))
+                
+                Divider()
 
                 List {
                     
