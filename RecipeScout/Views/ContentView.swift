@@ -61,7 +61,7 @@ struct MainTabView: View {
                 .tag(1)
             
             AIAssistantView(showTabView: $showTabView)
-                .tabItem { Label("AI" , systemImage : "brain.head.profile") }
+                .tabItem { Label("Sage" , systemImage : "brain.head.profile") }
                 .tag(2)
 
             ShoppingListView(showTabView: $showTabView)

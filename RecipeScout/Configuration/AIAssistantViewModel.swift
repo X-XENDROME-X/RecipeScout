@@ -55,12 +55,18 @@ final class AIAssistantViewModel {
         isLoading = true
         
         do {
-            // Build context
+            // Build context with current privacy settings
             let userContext = contextManager.buildContext(
                 includeShoppingList: includeShoppingList,
                 includeSavedRecipes: includeSavedRecipes,
                 includeMealPlan: includeMealPlan
             )
+            
+            // Debug logging
+            print("🔒 Context Privacy Settings:")
+            print("  - Saved Recipes: \(includeSavedRecipes ? "✓ ENABLED" : "✗ DISABLED")")
+            print("  - Shopping List: \(includeShoppingList ? "✓ ENABLED" : "✗ DISABLED")")
+            print("  - Meal Plan: \(includeMealPlan ? "✓ ENABLED" : "✗ DISABLED")")
             
             let systemPrompt = ClaudePromptBuilder.buildSystemPrompt(userContext: userContext)
             
@@ -112,11 +118,65 @@ final class AIAssistantViewModel {
     }
     
     func refreshContext() {
+        // Update statistics to reflect current data
+        let oldStatistics = statistics
         statistics = contextManager.getUserStatistics()
+        
+        // Log context changes for debugging
+        if oldStatistics.savedRecipeCount != statistics.savedRecipeCount {
+            print("📚 Saved recipes changed: \(oldStatistics.savedRecipeCount) → \(statistics.savedRecipeCount)")
+        }
+        if oldStatistics.shoppingItemCount != statistics.shoppingItemCount {
+            print("🛒 Shopping items changed: \(oldStatistics.shoppingItemCount) → \(statistics.shoppingItemCount)")
+        }
+        if oldStatistics.upcomingMealsCount != statistics.upcomingMealsCount {
+            print("📅 Meal plan changed: \(oldStatistics.upcomingMealsCount) → \(statistics.upcomingMealsCount)")
+        }
+    }
+    
+    /// Force rebuild context and notify user if significant changes occurred
+    func refreshContextWithNotification() -> String? {
+        let oldStatistics = statistics
+        statistics = contextManager.getUserStatistics()
+        
+        // Check for significant changes
+        var changes: [String] = []
+        
+        if statistics.savedRecipeCount > oldStatistics.savedRecipeCount {
+            let diff = statistics.savedRecipeCount - oldStatistics.savedRecipeCount
+            changes.append("saved \(diff) new recipe\(diff > 1 ? "s" : "")")
+        } else if statistics.savedRecipeCount < oldStatistics.savedRecipeCount {
+            let diff = oldStatistics.savedRecipeCount - statistics.savedRecipeCount
+            changes.append("removed \(diff) recipe\(diff > 1 ? "s" : "")")
+        }
+        
+        if statistics.shoppingItemCount > oldStatistics.shoppingItemCount {
+            let diff = statistics.shoppingItemCount - oldStatistics.shoppingItemCount
+            changes.append("added \(diff) shopping item\(diff > 1 ? "s" : "")")
+        } else if statistics.shoppingItemCount < oldStatistics.shoppingItemCount {
+            let diff = oldStatistics.shoppingItemCount - statistics.shoppingItemCount
+            changes.append("removed \(diff) shopping item\(diff > 1 ? "s" : "")")
+        }
+        
+        if statistics.upcomingMealsCount > oldStatistics.upcomingMealsCount {
+            let diff = statistics.upcomingMealsCount - oldStatistics.upcomingMealsCount
+            changes.append("planned \(diff) new meal\(diff > 1 ? "s" : "")")
+        } else if statistics.upcomingMealsCount < oldStatistics.upcomingMealsCount {
+            let diff = oldStatistics.upcomingMealsCount - statistics.upcomingMealsCount
+            changes.append("removed \(diff) meal\(diff > 1 ? "s" : "")")
+        }
+        
+        if !changes.isEmpty {
+            return "I noticed you \(changes.joined(separator: ", ")). My knowledge has been updated! 🔄"
+        }
+        
+        return nil
     }
     
     func clearConversation() {
         messages.removeAll()
+        // Refresh statistics before adding new welcome message
+        statistics = contextManager.getUserStatistics()
         addWelcomeMessage()
         errorMessage = nil
     }
@@ -124,14 +184,22 @@ final class AIAssistantViewModel {
     func getSuggestedQueries() -> [String] {
         return ClaudePromptBuilder.getSuggestedQueries(
             hasData: statistics.hasAnyData,
-            statistics: statistics
+            statistics: statistics,
+            includeRecipes: includeSavedRecipes,
+            includeShoppingList: includeShoppingList,
+            includeMealPlan: includeMealPlan
         )
     }
     
     // MARK: - Private Methods
     
     private func addWelcomeMessage() {
-        let welcomeText = ClaudePromptBuilder.getWelcomeMessage(statistics: statistics)
+        let welcomeText = ClaudePromptBuilder.getWelcomeMessage(
+            statistics: statistics,
+            includeRecipes: includeSavedRecipes,
+            includeShoppingList: includeShoppingList,
+            includeMealPlan: includeMealPlan
+        )
         let welcomeMessage = ChatMessage(role: .assistant, content: welcomeText)
         messages.append(welcomeMessage)
     }

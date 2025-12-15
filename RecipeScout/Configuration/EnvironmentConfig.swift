@@ -20,9 +20,9 @@ final class EnvironmentConfig {
         return value
     }
     
-    var claudeAPIKey: String {
+    var claudeAPIKey: String? {
         guard let value = values["CLAUDE_API_KEY"], !value.isEmpty else {
-            fatalError("CLAUDE_API_KEY missing. Add CLAUDE_API_KEY to your .env file with your Anthropic API key.")
+            return nil
         }
         return value
     }

@@ -110,15 +110,10 @@ final class ClaudeAPIService {
     // MARK: - Private Methods
     
     private func getAPIKey() throws -> String {
-        do {
-            let key = EnvironmentConfig.shared.claudeAPIKey
-            guard !key.isEmpty else {
-                throw ClaudeError.missingAPIKey
-            }
-            return key
-        } catch {
+        guard let key = EnvironmentConfig.shared.claudeAPIKey, !key.isEmpty else {
             throw ClaudeError.missingAPIKey
         }
+        return key
     }
     
     private func enforceRateLimit() async throws {

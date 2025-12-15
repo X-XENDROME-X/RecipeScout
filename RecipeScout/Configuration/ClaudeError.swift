@@ -28,7 +28,7 @@ enum ClaudeError: LocalizedError {
             return "Invalid API URL"
             
         case .invalidResponse:
-            return "Invalid response from Claude API"
+            return "Invalid response from AI service"
             
         case .httpError(let statusCode, let message):
             if let msg = message {
@@ -49,7 +49,7 @@ enum ClaudeError: LocalizedError {
             return "Rate limit exceeded. Please try again later."
             
         case .invalidAPIKey:
-            return "Invalid or missing Claude API key"
+            return "Invalid or missing AI API key"
             
         case .contextTooLarge(let tokenCount, let maxTokens):
             return "Context too large: \(tokenCount) tokens (max: \(maxTokens))"
@@ -58,14 +58,14 @@ enum ClaudeError: LocalizedError {
             return "Server error: \(message)"
             
         case .missingAPIKey:
-            return "Claude API key not configured"
+            return "AI API key not configured"
         }
     }
     
     var recoverySuggestion: String? {
         switch self {
         case .invalidAPIKey, .missingAPIKey:
-            return "Please add your Claude API key to the .env file"
+            return "Please check your AI API configuration"
             
         case .rateLimitExceeded:
             return "Wait a moment before sending another message"

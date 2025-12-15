@@ -12,6 +12,7 @@ import SwiftUI
 
 struct MessageBubbleView: View {
     let message: ChatMessage
+    @State private var showCopyFeedback = false
     
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
@@ -38,17 +39,37 @@ struct MessageBubbleView: View {
             }
             
             VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 4) {
-                Text(message.content)
-                    .font(.body)
+                // Message content with markdown rendering for assistant messages
+                messageContent
                     .padding(12)
                     .background(bubbleBackground)
                     .foregroundStyle(message.role == .user ? .white : .primary)
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .contextMenu {
+                        Button(action: {
+                            UIPasteboard.general.string = message.content
+                            showCopyFeedback = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                showCopyFeedback = false
+                            }
+                        }) {
+                            Label("Copy Message", systemImage: "doc.on.doc")
+                        }
+                    }
                 
-                Text(formattedTime)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 4)
+                HStack(spacing: 4) {
+                    Text(formattedTime)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    
+                    if showCopyFeedback {
+                        Image(systemName: "checkmark")
+                            .font(.caption2)
+                            .foregroundStyle(.green)
+                            .transition(.scale.combined(with: .opacity))
+                    }
+                }
+                .padding(.horizontal, 4)
             }
             
             if message.role == .assistant {
@@ -66,6 +87,36 @@ struct MessageBubbleView: View {
                             .foregroundStyle(.orange)
                     }
             }
+        }
+    }
+    
+    // MARK: - Computed Properties
+    
+    @ViewBuilder
+    private var messageContent: some View {
+        if message.role == .assistant {
+            // Render markdown for assistant messages
+            if let attributedString = try? AttributedString(
+                markdown: message.content,
+                options: AttributedString.MarkdownParsingOptions(
+                    interpretedSyntax: .inlineOnlyPreservingWhitespace
+                )
+            ) {
+                Text(attributedString)
+                    .font(.body)
+                    .textSelection(.enabled)
+                    .tint(.orange) // Color for links if any
+            } else {
+                // Fallback to plain text if markdown parsing fails
+                Text(message.content)
+                    .font(.body)
+                    .textSelection(.enabled)
+            }
+        } else {
+            // Plain text for user messages
+            Text(message.content)
+                .font(.body)
+                .textSelection(.enabled)
         }
     }
     

@@ -70,7 +70,7 @@ struct HomeView : View {
                         .offset(x: showContent ? 0 : -50)
                         .allowsHitTesting(showContent)
                     
-                    Button(action : { onSelectTab(2) } ) { MenuButton(ICON : "brain.head.profile" , LABEL : "AI Assistant") }
+                    Button(action : { onSelectTab(2) } ) { MenuButton(ICON : "brain.head.profile" , LABEL : "Sage") }
                         .buttonStyle(.plain)
                         .opacity(showContent ? 1.0 : 0.0)
                         .offset(x: showContent ? 0 : -50)

@@ -16,7 +16,7 @@ struct ClaudePromptBuilder {
     
     static func buildSystemPrompt(userContext: String) -> String {
         return """
-        You are RecipeScout Assistant, a friendly and knowledgeable AI helper built into the RecipeScout app.
+        You are Sage, a friendly and knowledgeable AI helper built into the RecipeScout app.
         
         YOUR ROLE:
         - Help users discover and understand recipes
@@ -122,59 +122,85 @@ struct ClaudePromptBuilder {
     
     // MARK: - Suggested Queries
     
-    static func getSuggestedQueries(hasData: Bool, statistics: UserStatistics) -> [String] {
-        var suggestions: [String] = []
+    static func getSuggestedQueries(hasData: Bool, statistics: UserStatistics, includeRecipes: Bool, includeShoppingList: Bool, includeMealPlan: Bool) -> [String] {
+        // Get time-aware suggestions first
+        var suggestions = TimeContextHelper.getTimeBasedSuggestions(
+            hasSavedRecipes: statistics.savedRecipeCount > 0 && includeRecipes,
+            hasShoppingList: statistics.shoppingItemCount > 0 && includeShoppingList,
+            hasMealPlan: statistics.upcomingMealsCount > 0 && includeMealPlan
+        )
         
-        if statistics.savedRecipeCount > 0 {
-            suggestions.append("What can I make with my saved recipes?")
-            suggestions.append("Suggest a meal plan based on my favorites")
-        } else {
-            suggestions.append("What are some easy dinner ideas?")
-            suggestions.append("How do I get started with meal planning?")
+        // Add data-specific suggestions if not already included
+        if statistics.savedRecipeCount > 0 && includeRecipes {
+            if !suggestions.contains(where: { $0.contains("saved recipes") }) {
+                suggestions.append("What can I make with my saved recipes?")
+            }
         }
         
-        if statistics.shoppingItemCount > 0 {
-            suggestions.append("What recipes use items from my shopping list?")
-        } else {
-            suggestions.append("Help me create a shopping list for the week")
+        if statistics.shoppingItemCount > 0 && includeShoppingList {
+            if !suggestions.contains(where: { $0.contains("shopping list") }) {
+                suggestions.append("What recipes use items from my shopping list?")
+            }
         }
         
-        if statistics.upcomingMealsCount > 0 {
-            suggestions.append("Review my upcoming meal plan")
+        if statistics.upcomingMealsCount > 0 && includeMealPlan {
+            if !suggestions.contains(where: { $0.contains("meal plan") }) {
+                suggestions.append("Review my upcoming meal plan")
+            }
         }
         
-        // Always include general suggestions
-        suggestions.append("What's a good substitute for eggs?")
-        suggestions.append("How do I store fresh herbs?")
-        suggestions.append("What are some quick breakfast ideas?")
+        // Always include at least one general suggestion
+        if !suggestions.contains(where: { $0.contains("substitute") || $0.contains("store") }) {
+            suggestions.append("What's a good substitute for eggs?")
+        }
         
         return Array(suggestions.prefix(4))
     }
     
     // MARK: - Welcome Message
     
-    static func getWelcomeMessage(statistics: UserStatistics) -> String {
-        if statistics.hasAnyData {
-            var message = "👋 Hi! I'm your RecipeScout Assistant. "
+    static func getWelcomeMessage(statistics: UserStatistics, includeRecipes: Bool, includeShoppingList: Bool, includeMealPlan: Bool) -> String {
+        // Check if we have any data that we're allowed to see
+        let hasVisibleRecipes = statistics.savedRecipeCount > 0 && includeRecipes
+        let hasVisibleShopping = statistics.shoppingItemCount > 0 && includeShoppingList
+        let hasVisibleMeals = statistics.upcomingMealsCount > 0 && includeMealPlan
+        let hasAnyVisibleData = hasVisibleRecipes || hasVisibleShopping || hasVisibleMeals
+        
+        // Get time-aware greeting
+        let timeGreeting = TimeContextHelper.getTimeAwareGreeting()
+        
+        if hasAnyVisibleData {
+            var message = "👋 \(timeGreeting)\n\nI'm Sage, your cooking companion. "
             
-            if statistics.savedRecipeCount > 0 {
+            if hasVisibleRecipes {
                 message += "I see you have \(statistics.savedRecipeCount) saved recipe\(statistics.savedRecipeCount == 1 ? "" : "s"). "
             }
             
-            if statistics.shoppingItemCount > 0 {
+            if hasVisibleShopping {
                 message += "You have \(statistics.shoppingItemCount) item\(statistics.shoppingItemCount == 1 ? "" : "s") on your shopping list. "
             }
             
-            if statistics.upcomingMealsCount > 0 {
+            if hasVisibleMeals {
                 message += "And \(statistics.upcomingMealsCount) meal\(statistics.upcomingMealsCount == 1 ? "" : "s") planned! "
             }
             
-            message += "\n\nI can help you with recipes, cooking tips, meal planning, and more. What would you like to know?"
+            // Add time-specific suggestion
+            let currentMeal = TimeContextHelper.getCurrentMealTime()
+            if currentMeal == .dinner {
+                message += "\n\nWhat would you like to cook for dinner tonight?"
+            } else if currentMeal == .breakfast {
+                message += "\n\nWhat sounds good for breakfast?"
+            } else if currentMeal == .lunch {
+                message += "\n\nWhat are you in the mood for lunch?"
+            } else {
+                message += "\n\nWhat can I help you with?"
+            }
             
             return message
         } else {
+            let greeting = TimeContextHelper.getGreeting()
             return """
-            👋 Hi! I'm your RecipeScout Assistant!
+            👋 \(greeting)! I'm Sage, your cooking companion!
             
             I'm here to help you with:
             🍳 Recipe ideas and cooking tips
