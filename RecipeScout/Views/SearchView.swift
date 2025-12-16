@@ -144,11 +144,13 @@ struct SearchView : View {
                         }
                         .padding(.horizontal)
                     }
-                    .padding(.bottom, 8)
+                    .padding(.top, 16)
+                    .padding(.bottom, 12)
                 }
                 .background(Color(UIColor.systemBackground))
                 
                 Divider()
+                    .padding(.vertical, 16)
 
                 ZStack {
 
@@ -161,6 +163,7 @@ struct SearchView : View {
                                     .font(.title2)
                                     .fontWeight(.bold)
                                     .padding(.horizontal)
+                                    .padding(.top, 8)
                             }
 
                             if !RecipesFiltered.isEmpty && !viewModel.isLoading {
