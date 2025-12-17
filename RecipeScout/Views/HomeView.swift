@@ -28,7 +28,6 @@ struct HomeView : View {
                     .resizable()
                     .scaledToFit()
                     .frame(width : 100 , height : 100)
-                    .foregroundColor(.orange)
                     .scaleEffect(showContent ? 1.0 : 0.5)
                     .opacity(showContent ? 1.0 : 0.0)
 

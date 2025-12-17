@@ -197,7 +197,7 @@ struct SearchView : View {
                             
                         }
                         .frame(maxWidth : .infinity , maxHeight : .infinity)
-                        .background(Color.white.opacity(0.9))
+                        .background(Color(UIColor.systemBackground).opacity(0.9))
                     }
 
                     if !viewModel.isLoading && RecipesFiltered.isEmpty && ( !textSearch.isEmpty || categorySelection != "All" ) {
@@ -291,7 +291,7 @@ struct RecipeCard : View {
                             .foregroundColor(.orange)
                         
                         Text(recipe.category)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                     }
 
                     Text("|")
@@ -303,7 +303,7 @@ struct RecipeCard : View {
                             .foregroundColor(.orange)
                         
                         Text(recipe.cuisine)
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                     }
 
                     Text("|")
@@ -315,7 +315,7 @@ struct RecipeCard : View {
                             .foregroundColor(.orange)
                         
                         Text("\(recipe.ingredients.count) Ingredients")
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                             .fixedSize(horizontal : true , vertical : false)
                     }
                 }
@@ -338,7 +338,7 @@ struct RecipeCard : View {
                 .simultaneousGesture(TapGesture())
             }
             .padding()
-            .background(Color.white)
+            .background(Color(UIColor.secondarySystemBackground))
         }
         .clipShape(RoundedRectangle(cornerRadius : 15))
         .shadow(color : Color.black.opacity(0.1) , radius : 5 , x : 0 , y : 2)

@@ -226,7 +226,7 @@ struct SavedRecipesView : View {
         }
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden , for : .tabBar)
-        .toolbarBackground(Color.white , for : .navigationBar)
+        .toolbarBackground(Color(UIColor.systemBackground) , for : .navigationBar)
         .toolbarBackground(.visible , for : .navigationBar)
         .toolbar {
             

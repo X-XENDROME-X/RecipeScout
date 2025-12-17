@@ -351,14 +351,14 @@ struct RecipeDetailView : View {
                     Spacer(minLength : 40)
                 }
                 .padding(.top , 20)
-                .background(Color.white)
+                .background(Color(UIColor.systemBackground))
                 .cornerRadius(30)
                 .offset(y : -20)
             }
         }
         .edgesIgnoringSafeArea(.top)
         .navigationBarBackButtonHidden(true)
-        .toolbarBackground(Color.white , for : .navigationBar)
+        .toolbarBackground(Color(UIColor.systemBackground) , for : .navigationBar)
         .toolbarBackground(.visible , for : .navigationBar)
         .toolbar {
             
