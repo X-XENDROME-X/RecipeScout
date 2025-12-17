@@ -1,7 +1,7 @@
 <h1 align="center">RecipeScout 🍳</h1>
 
 <p align="center">
-  <img src="RecipeScout/Assets.xcassets/logo.imageset/logo.png" alt="RecipeScout Logo" width="300"/>
+  <img src="RecipeScout/Assets.xcassets/logo.imageset/logo 3.png" alt="RecipeScout Logo" width="300"/>
 </p>
 
 <p align="center">
@@ -242,63 +242,62 @@ RecipeScout/
 ## 📱 Screenshots
 
 ### Search View
-<p align="center">
-  <img src="screenshots/search_view.png" alt="Search View" width="250"/>
-</p>
+
+<img src="screenshots/search_view.png" alt="Search View" width="250"/>
 
 *Discover thousands of recipes with powerful search and filtering capabilities*
 
 ---
 
 ### Sage AI Assistant
-<p align="center">
+
   <img src="screenshots/sage_ai.png" alt="Sage AI Assistant" width="250"/>
-</p>
+
 
 *Chat with Sage, your intelligent cooking companion powered by Claude AI*
 
 ---
 
 ### Meal Planner
-<p align="center">
+
   <img src="screenshots/meal_planner.png" alt="Meal Planner" width="250"/>
-</p>
+
 
 *Plan your meals with an intuitive calendar-based interface*
 
 ---
 
 ### Shopping List
-<p align="center">
+
   <img src="screenshots/shopping_list.png" alt="Shopping List" width="250"/>
-</p>
+
 
 *Auto-generated shopping lists from your meal plans with check-off functionality*
 
 ---
 
 ### Map View
-<p align="center">
+
   <img src="screenshots/map_view.png" alt="Map View" width="250"/>
-</p>
+
 
 *Find nearby grocery stores with integrated Apple Maps*
 
 ---
 
 ### Saved Recipes
-<p align="center">
+
   <img src="screenshots/saved_recipes.png" alt="Saved Recipes" width="250"/>
-</p>
+
 
 *Access your personal collection of favorite recipes anytime*
 
 ---
 
 ### Recipe Detail
-<p align="center">
+
   <img src="screenshots/recipe_detail.png" alt="Recipe Detail" width="250"/>
-</p>
+
 
 *View comprehensive recipe information with ingredients and instructions*
 
