@@ -18,6 +18,8 @@ struct SavedRecipesView : View {
     
     @Environment(\.modelContext) private var modelContext
     
+    @Environment(\.colorScheme) private var colorScheme
+    
     @Query(sort : \SavedRecipe.dateSaved , order : .reverse)
     
     private var savedRecipes : [SavedRecipe]
@@ -226,8 +228,9 @@ struct SavedRecipesView : View {
         }
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden , for : .tabBar)
-        .toolbarBackground(Color(UIColor.systemBackground) , for : .navigationBar)
+        .toolbarBackground(colorScheme == .light ? Color.white : Color(UIColor.systemBackground) , for : .navigationBar)
         .toolbarBackground(.visible , for : .navigationBar)
+        .background(Color(UIColor.systemBackground))
         .toolbar {
             
             ToolbarItem(placement : .navigationBarLeading) {

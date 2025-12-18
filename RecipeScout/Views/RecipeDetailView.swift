@@ -29,22 +29,24 @@ struct RecipeDetailView : View {
     
     @Environment(\.modelContext) private var modelContext
     
+    @Environment(\.colorScheme) private var colorScheme
+    
     @State private var alertMessage=""
-
+    
     private var STEPS : [String] {
         recipe.instructions.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     }
-
+    
     private func SavedStateUpdated() {
         
         let recipeID = recipe.id
-
+        
         let PRED = #Predicate<SavedRecipe> { S in
             S.id==recipeID
         }
-
+        
         let DESC = FetchDescriptor<SavedRecipe>(predicate : PRED)
-
+        
         if let RESULTS = try? modelContext.fetch(DESC) {
             isSaved = !RESULTS.isEmpty
         }
@@ -53,17 +55,17 @@ struct RecipeDetailView : View {
             isSaved = false
         }
     }
-
+    
     private func CorFSavedRecipe() -> SavedRecipe? {
         
         let recipeID = recipe.id
-
+        
         let PRED = #Predicate<SavedRecipe> { saved in
             saved.id == recipeID
         }
-
+        
         let DESC = FetchDescriptor<SavedRecipe>(predicate : PRED)
-
+        
         if let results = try? modelContext.fetch(DESC) , let EXISTING = results.first {
             
             return EXISTING
@@ -77,9 +79,9 @@ struct RecipeDetailView : View {
             return SAV
         }
     }
-
+    
     private func MealPlanner() {
-
+        
         if let _ = CorFSavedRecipe() {
             
             isSaved = true
@@ -95,7 +97,7 @@ struct RecipeDetailView : View {
             
         }
     }
-
+    
     private func IngredientsAdder() {
         
         let ingredients = recipe.ingredients
@@ -151,7 +153,7 @@ struct RecipeDetailView : View {
             showAlert = true
             
             alertMessage = "Failed to save items to Shopping List: \(error.localizedDescription)"
-           
+            
             return
         }
         
@@ -165,22 +167,22 @@ struct RecipeDetailView : View {
         
         showAlert=true
     }
-
-
+    
+    
     private func Favourite() {
         
         let recipeID = recipe.id
-
+        
         if isSaved {
-
+            
             alertMessage = "Removed from Saved Recipes"
-
+            
             let PRED = #Predicate<SavedRecipe> { saved in
                 saved.id == recipeID
             }
             
             let DESC = FetchDescriptor<SavedRecipe>(predicate : PRED)
-
+            
             if let results = try? modelContext.fetch(DESC) {
                 
                 for saved in results { modelContext.delete(saved) }
@@ -190,210 +192,214 @@ struct RecipeDetailView : View {
         }
         
         else {
-
+            
             alertMessage = "Added to Saved Recipes"
-
+            
             let saved = SavedRecipe(from : recipe)
             
             modelContext.insert(saved)
             
             isSaved = true
         }
-
+        
         SavedStateUpdated()
-
+        
         showAlert = true
     }
-
+    
     var body : some View {
         
-        ScrollView {
+        ZStack(alignment: .top) {
             
-            VStack(spacing : 0) {
-
-                HeaderImageView(imageURL : recipe.imageURL , height : 300)
-                    .frame(height: 300)
-
-                VStack(spacing : 25) {
-
-                    VStack(spacing : 12) {
+            ScrollView {
+                
+                VStack(spacing : 0) {
+                    
+                    HeaderImageView(imageURL : recipe.imageURL , height : 300)
+                        .frame(height: 300)
+                    
+                    VStack(spacing : 25) {
                         
-                        Text(recipe.name)
-                            .font(.system(size : 28 , weight : .bold))
-                            .foregroundColor(.orange)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-
-                        HStack(spacing : 12) {
-                             
-                            HStack(spacing : 4) {
-                                
-                                Image(systemName : "fork.knife.circle.fill").foregroundColor(.orange)
-                                Text(recipe.category).foregroundColor(.secondary)
-                                
-                            }
-
-                            Text("|").foregroundColor(.gray.opacity(0.5))
-
-                            HStack(spacing : 4) {
-                                
-                                Image(systemName : "globe").foregroundColor(.orange)
-                                
-                                Text(recipe.cuisine).foregroundColor(.secondary)
-                                
-                            }
-
-                            Text("|").foregroundColor(.gray.opacity(0.5))
-
-                            HStack(spacing : 4) {
-                                
-                                Image(systemName : "list.bullet").foregroundColor(.orange)
-                                
-                                Text("\(recipe.ingredients.count) Ingredients").foregroundColor(.secondary)
-                                
-                            }
-                        }
-                        .font(.caption)
-                        .minimumScaleFactor(0.8)
-                        .lineLimit(1)
-                    }
-
-                    HStack(spacing : 15) {
-                        
-                        Button(action : MealPlanner) {
+                        VStack(spacing : 12) {
                             
-                            Label("Meal Plan" , systemImage : "calendar")
-                                .font(.headline)
+                            Text(recipe.name)
+                                .font(.system(size : 28 , weight : .bold))
                                 .foregroundColor(.orange)
-                                .padding()
-                                .frame(maxWidth : .infinity)
-                                .background(Color.orange.opacity(0.1))
-                                .cornerRadius(12)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
                             
-                        }
-
-                        Button(action : IngredientsAdder) {
-                            
-                            Label("Add to List" , systemImage : "cart.fill")
-                                .font(.headline)
-                                .foregroundColor(.orange)
-                                .padding()
-                                .frame(maxWidth : .infinity)
-                                .background(Color.orange.opacity(0.1))
-                                .cornerRadius(12)
-                            
-                        }
-                    }
-                    .padding(.horizontal)
-
-                    VStack(alignment : .leading , spacing : 15) {
-                        
-                        Text("Ingredients")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.orange)
-                            .frame(maxWidth : .infinity , alignment : .center)
-
-                        VStack(alignment : .leading , spacing : 10) {
-                            
-                            ForEach(Array(recipe.ingredients.enumerated()) , id : \.offset) { _ , ingredient in
+                            HStack(spacing : 12) {
                                 
-                                HStack(alignment : .top , spacing : 10) {
+                                HStack(spacing : 4) {
                                     
-                                    Image(systemName : "circle.fill")
-                                        .font(.system(size : 6))
-                                        .foregroundColor(.orange)
-                                        .padding(.top , 6)
-
-                                    Text("\(ingredient.quantity) \(ingredient.name)")
-                                        .font(.body)
-                                        .foregroundColor(.primary)
-                                        .fixedSize(horizontal : false , vertical : true)
+                                    Image(systemName : "fork.knife.circle.fill").foregroundColor(.orange)
+                                    Text(recipe.category).foregroundColor(.secondary)
                                     
                                 }
-                                .padding(.horizontal , 20)
+                                
+                                Text("|").foregroundColor(.gray.opacity(0.5))
+                                
+                                HStack(spacing : 4) {
+                                    
+                                    Image(systemName : "globe").foregroundColor(.orange)
+                                    
+                                    Text(recipe.cuisine).foregroundColor(.secondary)
+                                    
+                                }
+                                
+                                Text("|").foregroundColor(.gray.opacity(0.5))
+                                
+                                HStack(spacing : 4) {
+                                    
+                                    Image(systemName : "list.bullet").foregroundColor(.orange)
+                                    
+                                    Text("\(recipe.ingredients.count) Ingredients").foregroundColor(.secondary)
+                                    
+                                }
+                            }
+                            .font(.caption)
+                            .minimumScaleFactor(0.8)
+                            .lineLimit(1)
+                        }
+                        
+                        HStack(spacing : 15) {
+                            
+                            Button(action : MealPlanner) {
+                                
+                                Label("Meal Plan" , systemImage : "calendar")
+                                    .font(.headline)
+                                    .foregroundColor(.orange)
+                                    .padding()
+                                    .frame(maxWidth : .infinity)
+                                    .background(Color.orange.opacity(0.1))
+                                    .cornerRadius(12)
+                                
+                            }
+                            
+                            Button(action : IngredientsAdder) {
+                                
+                                Label("Add to List" , systemImage : "cart.fill")
+                                    .font(.headline)
+                                    .foregroundColor(.orange)
+                                    .padding()
+                                    .frame(maxWidth : .infinity)
+                                    .background(Color.orange.opacity(0.1))
+                                    .cornerRadius(12)
+                                
                             }
                         }
-                    }
-
-                    Divider().padding(.horizontal)
-
-                    VStack(alignment : .leading , spacing : 15) {
-                         
-                        Text("Instructions")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.orange)
-                            .frame(maxWidth : .infinity , alignment : .center)
-
+                        .padding(.horizontal)
+                        
                         VStack(alignment : .leading , spacing : 15) {
                             
-                            ForEach(Array(STEPS.enumerated()) , id: \.offset) { index , step in
+                            Text("Ingredients")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.orange)
+                                .frame(maxWidth : .infinity , alignment : .center)
+                            
+                            VStack(alignment : .leading , spacing : 10) {
                                 
-                                HStack(alignment : .top , spacing : 12) {
+                                ForEach(Array(recipe.ingredients.enumerated()) , id : \.offset) { _ , ingredient in
                                     
-                                    Image(systemName: "circle.fill")
-                                        .font(.caption)
-                                        .foregroundColor(.orange)
-                                        .padding(.top , 6)
-                                        .frame(width : 25 , alignment : .leading)
-
-                                    Text(step)
-                                        .font(.body)
-                                        .lineSpacing(4)
-                                        .fixedSize(horizontal : false , vertical : true)
+                                    HStack(alignment : .top , spacing : 10) {
+                                        
+                                        Image(systemName : "circle.fill")
+                                            .font(.system(size : 6))
+                                            .foregroundColor(.orange)
+                                            .padding(.top , 6)
+                                        
+                                        Text("\(ingredient.quantity) \(ingredient.name)")
+                                            .font(.body)
+                                            .foregroundColor(.primary)
+                                            .fixedSize(horizontal : false , vertical : true)
+                                        
+                                    }
+                                    .padding(.horizontal , 20)
                                 }
-                                .padding(.horizontal , 20)
                             }
                         }
+                        
+                        Divider().padding(.horizontal)
+                        
+                        VStack(alignment : .leading , spacing : 15) {
+                            
+                            Text("Instructions")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.orange)
+                                .frame(maxWidth : .infinity , alignment : .center)
+                            
+                            VStack(alignment : .leading , spacing : 15) {
+                                
+                                ForEach(Array(STEPS.enumerated()) , id: \.offset) { index , step in
+                                    
+                                    HStack(alignment : .top , spacing : 12) {
+                                        
+                                        Image(systemName: "circle.fill")
+                                            .font(.caption)
+                                            .foregroundColor(.orange)
+                                            .padding(.top , 6)
+                                            .frame(width : 25 , alignment : .leading)
+                                        
+                                        Text(step)
+                                            .font(.body)
+                                            .lineSpacing(4)
+                                            .fixedSize(horizontal : false , vertical : true)
+                                    }
+                                    .padding(.horizontal , 20)
+                                }
+                            }
+                        }
+                        
+                        Spacer(minLength : 40)
                     }
-
-                    Spacer(minLength : 40)
+                    .padding(.top , 20)
+                    .background(Color(UIColor.systemBackground))
+                    .cornerRadius(30)
+                    .offset(y : -20)
                 }
-                .padding(.top , 20)
-                .background(Color(UIColor.systemBackground))
-                .cornerRadius(30)
-                .offset(y : -20)
+                .ignoresSafeArea(edges: .top)
             }
-        }
-        .edgesIgnoringSafeArea(.top)
-        .navigationBarBackButtonHidden(true)
-        .toolbarBackground(Color(UIColor.systemBackground) , for : .navigationBar)
-        .toolbarBackground(.visible , for : .navigationBar)
-        .toolbar {
             
-            ToolbarItem(placement : .navigationBarLeading) {
+            .navigationBarBackButtonHidden(true)
+            .toolbarBackground(colorScheme == .light ? Color.white : Color(UIColor.systemBackground) , for : .navigationBar)
+            .toolbarBackground(.visible , for : .navigationBar)
+            .background(Color(UIColor.systemBackground))
+            .toolbar {
                 
-                Button(action : { dismiss() }) {
+                ToolbarItem(placement : .navigationBarLeading) {
                     
-                    HStack(spacing : 4) {
+                    Button(action : { dismiss() }) {
                         
-                        Image(systemName : "chevron.left")
-                        
-                        Text("Back")
-                    }
-                    .foregroundColor(.orange)
-                }
-            }
-
-            ToolbarItem(placement : .principal) {
-                
-                HStack(spacing : 8) {
-                    
-                    Image("logo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width : 28 , height : 28)
-                    
-                    Text("Recipe Details")
-                        .font(.headline)
-                        .fontWeight(.bold)
+                        HStack(spacing : 4) {
+                            
+                            Image(systemName : "chevron.left")
+                            
+                            Text("Back")
+                        }
                         .foregroundColor(.orange)
+                    }
                 }
-            }
-
-            ToolbarItem(placement : .navigationBarTrailing) {
                 
+                ToolbarItem(placement : .principal) {
+                    
+                    HStack(spacing : 8) {
+                        
+                        Image("logo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width : 28 , height : 28)
+                        
+                        Text("Recipe Details")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.orange)
+                    }
+                }
+                
+                ToolbarItem(placement : .navigationBarTrailing) {
+                    
                     Button(action : Favourite) {
                         
                         Image(systemName : isSaved ? "heart.circle.fill" : "heart.circle")
@@ -403,78 +409,79 @@ struct RecipeDetailView : View {
                     }
                 }
             }
-        .alert(alertMessage , isPresented : $showAlert) { Button("OK" , role : .cancel) { } }
-
-        .onAppear { SavedStateUpdated() }
-
-        .sheet(isPresented : $MealPlannerDisplay) { MealPlannerView(showTabView: $showTabView, PreselectedRECID : recipe.id) }
+            .alert(alertMessage , isPresented : $showAlert) { Button("OK" , role : .cancel) { } }
+            
+            .onAppear { SavedStateUpdated() }
+            
+            .sheet(isPresented : $MealPlannerDisplay) { MealPlannerView(showTabView: $showTabView, PreselectedRECID : recipe.id) }
+        }
     }
-}
-
-private struct HeaderImageView : View {
     
-    let imageURL : String?
-    
-    let height : CGFloat
-
-    var body : some View {
+    private struct HeaderImageView : View {
         
-        GeometryReader { GEO in
-    
-            Group {
+        let imageURL : String?
+        
+        let height : CGFloat
+        
+        var body : some View {
+            
+            GeometryReader { GEO in
                 
-                if let imageURL , let url = URL(string : imageURL) {
+                Group {
                     
-                    AsyncImage(url : url) { PH in
+                    if let imageURL , let url = URL(string : imageURL) {
                         
-                        switch PH {
+                        AsyncImage(url : url) { PH in
                             
-                        case .empty :
-                            Area(width : GEO.size.width , height : height) {
-                                ProgressView()
+                            switch PH {
+                                
+                            case .empty :
+                                Area(width : GEO.size.width , height : height) {
+                                    ProgressView()
+                                }
+                                
+                            case .success(let IMG) :
+                                IMG
+                                    .resizable()
+                                    .aspectRatio(contentMode : .fill)
+                                    .frame(width : GEO.size.width , height : height)
+                                    .clipped()
+                                
+                            case .failure :
+                                Area(width : GEO.size.width , height : height) {
+                                    Image(systemName : "photo")
+                                        .font(.system(size : 60))
+                                        .foregroundColor(.gray)
+                                }
+                                
+                            @unknown default :
+                                Color.clear
+                                    .frame(width : GEO.size.width , height : height)
                             }
+                        }
+                    }
+                    
+                    else {
+                        
+                        Area(width : GEO.size.width , height : height) {
                             
-                        case .success(let IMG) :
-                            IMG
-                                .resizable()
-                                .aspectRatio(contentMode : .fill)
-                                .frame(width : GEO.size.width , height : height)
-                                .clipped()
-                            
-                        case .failure :
-                            Area(width : GEO.size.width , height : height) {
-                                Image(systemName : "photo")
-                                    .font(.system(size : 60))
-                                    .foregroundColor(.gray)
-                            }
-                            
-                        @unknown default :
-                            Color.clear
-                                .frame(width : GEO.size.width , height : height)
+                            Image(systemName : "photo")
+                                .font(.system(size : 60))
+                                .foregroundColor(.gray)
                         }
                     }
                 }
-                
-                else {
-                    
-                    Area(width : GEO.size.width , height : height) {
-                        
-                        Image(systemName : "photo")
-                            .font(.system(size : 60))
-                            .foregroundColor(.gray)
-                    }
-                }
             }
+            .frame(height : height)
         }
-        .frame(height : height)
-    }
-
-    @ViewBuilder
-    private func Area<T : View>(width : CGFloat , height : CGFloat , @ViewBuilder content:()->T)->some View {
         
-        Rectangle()
-            .fill(Color.gray.opacity(0.3))
-            .frame(width : width , height : height)
-            .overlay(content())
+        @ViewBuilder
+        private func Area<T : View>(width : CGFloat , height : CGFloat , @ViewBuilder content:()->T)->some View {
+            
+            Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(width : width , height : height)
+                .overlay(content())
+        }
     }
 }
