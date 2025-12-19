@@ -310,14 +310,10 @@ final class MapViewModel : NSObject , ObservableObject , CLLocationManagerDelega
             region.center = NEW.coordinate
             
             NearbyStoresSearching()
-            
-            print("The initial location is set to => \(NEW.coordinate.latitude) , \(NEW.coordinate.longitude)")
         }
         else if let PREV=LASTLocation ,
                 
                 NEW.distance(from : PREV) > 500 {
-            
-            print("The User moved => \(Int(NEW.distance(from : PREV))) , so refreshing the stores")
             
             NearbyStoresSearching()
         }
@@ -334,8 +330,7 @@ final class MapViewModel : NSObject , ObservableObject , CLLocationManagerDelega
         }
 
     func locationManager(_ MANAGE : CLLocationManager , didFailWithError ERR: Error) {
-        
-        print("There is a location error => \(ERR.localizedDescription)")
+        // Location error occurred
     }
 
     func SSELECTION(_ ST : StoreLocation) {
@@ -384,12 +379,8 @@ final class MapViewModel : NSObject , ObservableObject , CLLocationManagerDelega
     func NearbyStoresSearching() {
         
         guard let userLocation = userLocation else {
-            
-            print("There is no user location")
             return
         }
-
-        print("searching stores near => \(userLocation.coordinate.latitude) , \(userLocation.coordinate.longitude)")
 
         let REQ=MKLocalSearch.Request()
         
@@ -402,18 +393,12 @@ final class MapViewModel : NSObject , ObservableObject , CLLocationManagerDelega
         FIND.start { [weak self] RESP , error in
             guard let self else { return }
 
-            if let ERR = error {
-                
-                print("The search error which is \(ERR.localizedDescription)")
+            if error != nil {
                 return
-                
             }
 
             guard let RESP = RESP else {
-                
-                print("There are no search results rn")
                 return
-                
             }
 
             DispatchQueue.main.async {

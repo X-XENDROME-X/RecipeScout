@@ -62,12 +62,6 @@ final class AIAssistantViewModel {
                 includeMealPlan: includeMealPlan
             )
             
-            // Debug logging
-            print("🔒 Context Privacy Settings:")
-            print("  - Saved Recipes: \(includeSavedRecipes ? "✓ ENABLED" : "✗ DISABLED")")
-            print("  - Shopping List: \(includeShoppingList ? "✓ ENABLED" : "✗ DISABLED")")
-            print("  - Meal Plan: \(includeMealPlan ? "✓ ENABLED" : "✗ DISABLED")")
-            
             let systemPrompt = ClaudePromptBuilder.buildSystemPrompt(userContext: userContext)
             
             // Convert messages to Claude format
@@ -119,19 +113,8 @@ final class AIAssistantViewModel {
     
     func refreshContext() {
         // Update statistics to reflect current data
-        let oldStatistics = statistics
+        _ = statistics
         statistics = contextManager.getUserStatistics()
-        
-        // Log context changes for debugging
-        if oldStatistics.savedRecipeCount != statistics.savedRecipeCount {
-            print("📚 Saved recipes changed: \(oldStatistics.savedRecipeCount) → \(statistics.savedRecipeCount)")
-        }
-        if oldStatistics.shoppingItemCount != statistics.shoppingItemCount {
-            print("🛒 Shopping items changed: \(oldStatistics.shoppingItemCount) → \(statistics.shoppingItemCount)")
-        }
-        if oldStatistics.upcomingMealsCount != statistics.upcomingMealsCount {
-            print("📅 Meal plan changed: \(oldStatistics.upcomingMealsCount) → \(statistics.upcomingMealsCount)")
-        }
     }
     
     /// Force rebuild context and notify user if significant changes occurred

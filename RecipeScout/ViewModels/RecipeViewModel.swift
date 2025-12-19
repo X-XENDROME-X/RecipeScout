@@ -37,9 +37,6 @@ class RecipeViewModel : ObservableObject {
                 recipes = try await APIService.shared.RandomRecipes(count : 10)
                 
             } catch {
-                
-                print("There is an error to load random recipes => \(error)")
-                
                 recipes = []
             }
         
@@ -55,9 +52,6 @@ class RecipeViewModel : ObservableObject {
                 recipes = try await APIService.shared.RecipesSearch(query : query)
                 
             } catch {
-                
-                print("There is an error to search recipes => \(error)")
-                
                 recipes = []
             }
         
@@ -73,9 +67,6 @@ class RecipeViewModel : ObservableObject {
                 recipes = try await APIService.shared.RecipesByCategory(category : category)
                 
             } catch {
-                
-                print("There is an error to fetch the category recipes => \(error)")
-                
                 recipes = []
             }
             isLoading = false

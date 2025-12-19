@@ -130,10 +130,8 @@ struct ShoppingListView : View {
                                     
                                     do {
                                         try modelContext.save()
-                                    }
-                                    
-                                    catch {
-                                        print("\(error)")
+                                    } catch {
+                                        // Failed to save changes
                                     }
                                 } label : {
                                     
